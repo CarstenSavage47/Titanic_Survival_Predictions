@@ -63,3 +63,170 @@ y_train = torch.squeeze(torch.from_numpy(y_train).float())
 y_test = torch.squeeze(torch.from_numpy(y_test).float())
 
 
+# Initializing the neural network class
+class Net(nn.Module):
+
+  def __init__(self, n_features):
+    super(Net, self).__init__()
+    self.fc1 = nn.Linear(n_features, 12)
+    self.fc2 = nn.Linear(12, 8)
+    self.fc3 = nn.Linear(8, 1)
+
+  def forward(self, x):
+    x = F.relu(self.fc1(x))
+    x = F.relu(self.fc2(x))
+    return torch.sigmoid(self.fc3(x))
+net = Net(X_train.shape[1])
+
+# Loss Function
+criterion = nn.BCELoss()
+optimizer = SGD(net.parameters(), lr=0.1)  ## here we're creating an optimizer to train the neural network.
+#This learning rate seems to be working well so far
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+X_train = X_train.to(device)
+y_train = y_train.to(device)
+
+X_test = X_test.to(device)
+y_test = y_test.to(device)
+net = net.to(device)
+criterion = criterion.to(device)
+
+def calculate_accuracy(y_true, y_pred):
+  predicted = y_pred.ge(.5).view(-1)
+  return (y_true == predicted).sum().float() / len(y_true)
+
+def round_tensor(t, decimal_places=3):
+  return round(t.item(), decimal_places)
+
+for epoch in range(1010):
+
+    y_pred = net(X_train)
+    y_pred = torch.squeeze(y_pred)
+    train_loss = criterion(y_pred, y_train)
+    train_acc = calculate_accuracy(y_train, y_pred)
+    y_test_pred = net(X_test)
+    y_test_pred = torch.squeeze(y_test_pred)
+    test_loss = criterion(y_test_pred, y_test)
+    test_acc = calculate_accuracy(y_test, y_test_pred)
+
+
+    if (epoch) % 10 == 0:
+        print(f'For Epoch: {epoch}')
+        print(f'Training loss: {round_tensor(train_loss)} Accuracy: {round_tensor(train_acc)}')
+        print(f'Testing loss: {round_tensor(test_loss)} Accuracy: {round_tensor(test_acc)}')
+
+# If test loss is less than 0.02, then break. That result is satisfactory.
+    if test_loss < 0.02:
+        print("Num steps: " + str(epoch))
+        break
+
+    optimizer.zero_grad()
+    train_loss.backward()
+    optimizer.step()
+
+
+# Creating a function to evaluate our input
+def TitanicSurvived(Sex,
+                    Age,
+                    Sib_Spos_Abrd,
+                    Par_Chil_Abrd,
+                    Pclass_1,
+                    Pclass_2,
+                    Pclass_3,
+                    Fare
+                   ):
+  t = torch.as_tensor([Sex,
+                    Age,
+                    Sib_Spos_Abrd,
+                    Par_Chil_Abrd,
+                    Pclass_1,
+                    Pclass_2,
+                    Pclass_3,
+                    Fare
+                       ]) \
+    .float() \
+    .to(device)
+  output = net(t)
+  return output.ge(0.5).item()
+
+# Note: Male Sex = 0, Female = 1
+TitanicSurvived(Sex=0,
+                Age=0,
+                Sib_Spos_Abrd=0,
+                Par_Chil_Abrd=0,
+                Pclass_1=0,
+                Pclass_2=0,
+                Pclass_3=1,
+                Fare=0)
+
+# Note: Male Sex = 0, Female = 1
+TitanicSurvived(Sex=1,
+                Age=0,
+                Sib_Spos_Abrd=0,
+                Par_Chil_Abrd=0,
+                Pclass_1=1,
+                Pclass_2=0,
+                Pclass_3=0,
+                Fare=0)
+
+# Define categories for our confusion matrix
+Categories = ['Survived','Not Survived']
+
+# Where y_test_pred > 0.5, we categorize it as 1, or else 0.
+y_test_dummy = np.where(y_test_pred > 0.5,1,0)
+
+# Creating a confusion matrix to visualize the results.
+# Model Evaluation Part 2
+Confusion_Matrix = confusion_matrix(y_test, y_test_dummy)
+Confusion_DF = pandas.DataFrame(Confusion_Matrix, index=Categories, columns=Categories)
+sns.heatmap(Confusion_DF, annot=True, fmt='g')
+plt.ylabel('Observed')
+plt.xlabel('Yhat')
+
+
+# Let's conduct a linear regression and evaluate the coefficients.
+
+Reg_Out = ols("Survived ~ Sex + Age + Sib_Spos_Abrd + Par_Chil_Abrd + Pclass_1 + Pclass_2 + Pclass_3 + Fare",
+              data = Titanic_WP).fit()
+
+print(Reg_Out.summary())
+
+# Example regression output. It appears that changes in Sex have the largest effect on Survived.
+# Passenger class also has a large effect on Survived. Increases in Pclass_1 have large effects on Survived.
+
+#   =================================================================================
+#                       coef    std err          t      P>|t|      [0.025      0.975]
+#   ---------------------------------------------------------------------------------
+#   Intercept         0.3479      0.031     11.104      0.000       0.286       0.409
+#   Sex               0.5075      0.028     18.115      0.000       0.453       0.563
+#   Age              -0.0062      0.001     -5.942      0.000      -0.008      -0.004
+#   Sib_Spos_Abrd    -0.0502      0.013     -3.804      0.000      -0.076      -0.024
+#   Par_Chil_Abrd    -0.0194      0.018     -1.072      0.284      -0.055       0.016
+#   Pclass_1          0.2936      0.033      8.896      0.000       0.229       0.358
+#   Pclass_2          0.1190      0.024      4.958      0.000       0.072       0.166
+#   Pclass_3         -0.0647      0.018     -3.668      0.000      -0.099      -0.030
+#   Fare              0.0004      0.000      1.235      0.217      -0.000       0.001
+#   ==============================================================================
+
+# The importance of Sex = 1 (Female) and Pclass_1 = 1 (First class) is reflected in the output of our
+# ...TitanicSurvived function.
+# Note: Male Sex = 0, Female = 1
+TitanicSurvived(Sex=1,
+                Age=0,
+                Sib_Spos_Abrd=0,
+                Par_Chil_Abrd=0,
+                Pclass_1=1,
+                Pclass_2=0,
+                Pclass_3=0,
+                Fare=0)
+
+# Feel free to play around with the inputs and evaluate the output.
+TitanicSurvived(Sex=0,
+                Age=0,
+                Sib_Spos_Abrd=1,
+                Par_Chil_Abrd=1,
+                Pclass_1=0,
+                Pclass_2=0,
+                Pclass_3=1,
+                Fare=1)
