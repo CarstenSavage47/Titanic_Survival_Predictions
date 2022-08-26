@@ -34,5 +34,32 @@ Titanic_WP['Sex'] = np.where(Titanic_WP['Sex']=='female',1,0)
 X = Titanic_WP[['Sex',
                 'Age',
                 'Sib_Spos_Abrd',
-                'Par_Chil_Abrd','Pclass','Fare']]
+                'Par_Chil_Abrd',
+                'Pclass_1',
+                'Pclass_2',
+                'Pclass_3',
+                'Fare']]
 y = Titanic_WP[['Survived']]
+
+
+# Scaling the data to be between 0 and 1
+min_max_scaler = preprocessing.MinMaxScaler()
+X = min_max_scaler.fit_transform(X)
+y = min_max_scaler.fit_transform(y)
+
+# Split dataframe into training and testing data. Remember to set a seed.
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=47)
+
+# Let's confirm that the scaling worked as intended.
+# All values should be between 0 and 1 for all variables.
+X_Stats = pandas.DataFrame(X)
+pandas.set_option('display.max_columns', None)
+X_Stats.describe()
+
+# Convert to float Tensor
+X_train = torch.tensor(X_train).float()
+X_test = torch.tensor(X_test).float()
+y_train = torch.squeeze(torch.from_numpy(y_train).float())
+y_test = torch.squeeze(torch.from_numpy(y_test).float())
+
+
