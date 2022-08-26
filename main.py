@@ -221,7 +221,7 @@ TitanicSurvived(Sex=1,
                 Pclass_3=0,
                 Fare=0)
 
-# Feel free to play around with the inputs and evaluate the output.
+## Feel free to play around with the inputs and evaluate the output.
 TitanicSurvived(Sex=0,
                 Age=0,
                 Sib_Spos_Abrd=1,
