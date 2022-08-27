@@ -148,7 +148,9 @@ def TitanicSurvived(Sex,
     .float() \
     .to(device)
   output = net(t)
-  return output.ge(0.5).item()
+  return output.ge(0.5).item(), output.item()
+
+# Updated return function to include the continuous value in addition to the classification.
 
 # Note: Male Sex = 0, Female = 1
 TitanicSurvived(Sex=0,
@@ -212,14 +214,14 @@ print(Reg_Out.summary())
 # The importance of Sex = 1 (Female) and Pclass_1 = 1 (First class) is reflected in the output of our
 # ...TitanicSurvived function.
 # Note: Male Sex = 0, Female = 1
-TitanicSurvived(Sex=1,
-                Age=0,
-                Sib_Spos_Abrd=0,
-                Par_Chil_Abrd=0,
+TitanicSurvived(Sex=0.5,
+                Age=0.2,
+                Sib_Spos_Abrd=1,
+                Par_Chil_Abrd=1,
                 Pclass_1=1,
                 Pclass_2=0,
                 Pclass_3=0,
-                Fare=0)
+                Fare=1)
 
 ## Feel free to play around with the inputs and evaluate the output.
 TitanicSurvived(Sex=0,
