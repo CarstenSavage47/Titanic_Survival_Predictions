@@ -187,7 +187,7 @@ plt.ylabel('Observed')
 plt.xlabel('Yhat')
 
 
-# Let's conduct a linear regression and evaluate the coefficients.
+## Let's conduct a linear regression and evaluate the coefficients.
 
 Reg_Out = ols("Survived ~ Sex + Age + Sib_Spos_Abrd + Par_Chil_Abrd + Pclass_1 + Pclass_2 + Pclass_3 + Fare",
               data = Titanic_WP).fit()
