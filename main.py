@@ -48,13 +48,17 @@ X = min_max_scaler.fit_transform(X)
 y = min_max_scaler.fit_transform(y)
 
 # Split dataframe into training and testing data. Remember to set a seed.
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=47)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=47, stratify=y)
 
 # Let's confirm that the scaling worked as intended.
 # All values should be between 0 and 1 for all variables.
 X_Stats = pandas.DataFrame(X)
 pandas.set_option('display.max_columns', None)
 X_Stats.describe()
+
+y_train_Stats = pandas.DataFrame(y_train)
+y_train_Stats.describe()
+# We can see that the data has stratified as intended.
 
 # Convert to float Tensor
 X_train = torch.tensor(X_train).float()
@@ -214,7 +218,7 @@ print(Reg_Out.summary())
 # The importance of Sex = 1 (Female) and Pclass_1 = 1 (First class) is reflected in the output of our
 # ...TitanicSurvived function.
 # Note: Male Sex = 0, Female = 1
-TitanicSurvived(Sex=0.5,
+TitanicSurvived(Sex=1,
                 Age=0.2,
                 Sib_Spos_Abrd=1,
                 Par_Chil_Abrd=1,
