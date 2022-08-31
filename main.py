@@ -57,7 +57,10 @@ pandas.set_option('display.max_columns', None)
 X_Stats.describe()
 
 y_train_Stats = pandas.DataFrame(y_train)
+y_test_Stats = pandas.DataFrame(y_test)
 y_train_Stats.describe()
+y_test_Stats.describe()
+
 # We can see that the data has stratified as intended.
 
 # Convert to float Tensor
