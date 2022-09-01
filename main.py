@@ -240,6 +240,10 @@ TitanicSurvived(Sex=0,
                 Pclass_3=1,
                 Fare=1)
 
+
+
+
+
 # Let's create a quick K-nearest neighbors model and see what we get.
 
 from sklearn.neighbors import KNeighborsClassifier
