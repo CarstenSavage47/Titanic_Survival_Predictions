@@ -274,3 +274,42 @@ K_Accuracy_Pair[K_Accuracy_Pair['Accuracy']==max(K_Accuracy_Pair['Accuracy'])]
 # Best iteration was K = 12 and accuracy = 82.5%.
 # This is actually slightly better than the neural network's accuracy.
 # The neural network's accuracy was 81.46%.
+
+
+
+
+# And let's do a quick logistic regression model:
+
+from sklearn.linear_model import LogisticRegression
+from sklearn import metrics
+from sklearn.preprocessing import PolynomialFeatures
+
+Logit = LogisticRegression()
+
+poly_accuracy = []
+
+polynomials = range(1,10)
+
+for poly_degree in polynomials:
+    poly = PolynomialFeatures(degree = poly_degree, interaction_only=False, include_bias=False)
+    X_poly = poly.fit_transform(X_train)
+    X_test_poly = poly.fit_transform(X_test)
+    Logit.fit(X_poly, y_train)
+    y_pred = Logit.predict(X_test_poly)
+    print('Polynomial Degree:',poly_degree,'Accuracy:',round(Logit.score(X_test_poly, y_test),2))
+    poly_accuracy.append([poly_degree,round(Logit.score(X_test_poly, y_test),2)])
+
+Polynomial_Accuracy = pandas.DataFrame(poly_accuracy)
+Polynomial_Accuracy.columns = ['Polynomial','Accuracy']
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix = confusion_matrix(y_test, y_pred)
+print(confusion_matrix)
+
+# Optimal logistic regression model has a polynomial value of 5, 6, or 9 and an accuracy rate of 83%.
+# It looks like our logit model is slightly more accurate than k-nearest neighbor and neural network models.
+# Accuracy with neural network: 81.5%.
+# Accuracy with logistic regression: 83%.
+# Accuracy with k-nearest neighbors: 82.5%.
+
+
