@@ -306,7 +306,7 @@ from sklearn.metrics import confusion_matrix
 confusion_matrix = confusion_matrix(y_test, y_pred)
 print(confusion_matrix)
 
-# Optimal logistic regression model has a polynomial value of 5, 6, or 9 and an accuracy rate of 83%.
+# Optimal logistic regression model has a polynomial degree of 5, 6, or 9 and an accuracy rate of 83%.
 # It looks like our logit model is slightly more accurate than k-nearest neighbor and neural network models.
 # Accuracy with neural network: 81.5%.
 # Accuracy with logistic regression: 83%.
