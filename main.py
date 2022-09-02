@@ -296,8 +296,8 @@ for poly_degree in polynomials:
     X_test_poly = poly.fit_transform(X_test)
     Logit.fit(X_poly, y_train)
     y_pred = Logit.predict(X_test_poly)
-    print('Polynomial Degree:',poly_degree,'Accuracy:',round(Logit.score(X_test_poly, y_test),2))
-    poly_accuracy.append([poly_degree,round(Logit.score(X_test_poly, y_test),2)])
+    print('Polynomial Degree:',poly_degree,'Accuracy:',round(Logit.score(X_test_poly, y_test),3))
+    poly_accuracy.append([poly_degree,round(Logit.score(X_test_poly, y_test),3)])
 
 Polynomial_Accuracy = pandas.DataFrame(poly_accuracy)
 Polynomial_Accuracy.columns = ['Polynomial','Accuracy']
@@ -306,10 +306,10 @@ from sklearn.metrics import confusion_matrix
 confusion_matrix = confusion_matrix(y_test, y_pred)
 print(confusion_matrix)
 
-# Optimal logistic regression model has a polynomial degree of 5, 6, or 9 and an accuracy rate of 83%.
+# Optimal logistic regression model has a polynomial degree of 9 and an accuracy rate of 83.1%.
 # It looks like our logit model is slightly more accurate than k-nearest neighbor and neural network models.
 # Accuracy with neural network: 81.5%.
-# Accuracy with logistic regression: 83%.
+# Accuracy with logistic regression: 83.1%.
 # Accuracy with k-nearest neighbors: 82.5%.
 
 
