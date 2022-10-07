@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn import preprocessing
 from statsmodels.formula.api import ols
+import plotly.express as px
 
 import pandas
 import numpy as np
@@ -30,6 +31,57 @@ Just_Dummies = pandas.get_dummies(Titanic['Pclass'],prefix='Pclass')
 Titanic_WP = pandas.concat([Titanic, Just_Dummies], axis=1)
 
 Titanic_WP['Sex'] = np.where(Titanic_WP['Sex']=='female',1,0)
+
+## Exploratory Data Analysis
+
+corrMatrix = Titanic_WP.corr()
+print(corrMatrix)
+
+# Correlation Matrix Version 1
+fig = px.imshow(corrMatrix)
+
+## Correlation Matrix Version 2
+
+Corr_Heat = sns.heatmap(corrMatrix,
+                 cbar=True,
+                 annot=True,
+                 square=True,
+                 fmt='.2f',
+                 annot_kws={'size': 10},
+                 yticklabels=corrMatrix.columns,
+                 xticklabels=corrMatrix.columns,
+                 cmap="Spectral_r")
+plt.show()
+
+Pair_Plot = px.scatter_matrix(Titanic_WP)
+Pair_Plot.show()
+
+# Evaluating kurtosis:
+# 1. Mesokurtic: Data follows a normal distribution
+# 2. Leptokurtic: Heavy tails on either side, indicating large outliers. Looks like Top-Thrill Dragster.
+# 3. Playtkurtic: Flat tails indicate that there aren't many outliers.
+
+# A kurtosis value greater than +1 indicates the graph is very peaked. Leptokurtic.
+# A kurtosis value less than -1 indicates the graph is relatively flat. Playtkurtic.
+# A kurtosis value of 0 indicates that the graph follows a normal distribution. Mesokurtic.
+
+# Evaluating skewness:
+# 1. A negative value indicates the tail is on the left side of the distribution.
+# 2. A positive value indicates the tail is on the right side of the distribution.
+# 3. A value of zero indicates that there is no skewness in the distribution; it's perfectly symmetrical.
+
+Kurtosis_x_Skewness = []
+
+Titanic_Slim = (Titanic_WP
+ .filter(['Sex','Age','Sib_Spos_Abrd','Par_Chil_Abrd','Pclass_1','Pclass_2','Pclass_3','Fare','Survived'])
+ )
+
+for col in Titanic_Slim:
+    print(f"Skewness for {col}: {Titanic_Slim[col].skew()}")
+    print(f"Kurtosis for {col}: {Titanic_Slim[col].kurt()}")
+    Kurtosis_x_Skewness.append({"Column":col,"Skewness":Titanic_Slim[col].skew(),"Kurtosis":Titanic_Slim[col].kurt()})
+
+Kurtosis_x_Skewness_DF = pandas.DataFrame(Kurtosis_x_Skewness)
 
 X = Titanic_WP[['Sex',
                 'Age',
